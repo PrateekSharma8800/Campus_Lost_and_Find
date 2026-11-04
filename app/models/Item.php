@@ -162,6 +162,53 @@ final class Item
         return array_map('intval', $stmt->fetch());
     }
 
+    /**
+     * Admin list: every item (including hidden ones) with poster name.
+     * Filters: q, type, status, visibility ('visible' | 'hidden'), page.
+     */
+    public static function adminSearch(array $filters, int $perPage = 20): array
+    {
+        $where = ['1 = 1'];
+        $params = [];
+        if ($filters['q'] !== '') {
+            $like = '%' . addcslashes($filters['q'], '%_\\') . '%';
+            $where[] = '(i.title LIKE ? OR i.description LIKE ? OR u.name LIKE ?)';
+            array_push($params, $like, $like, $like);
+        }
+        if ($filters['type'] !== '') {
+            $where[] = 'i.type = ?';
+            $params[] = $filters['type'];
+        }
+        if ($filters['status'] !== '') {
+            $where[] = 'i.status = ?';
+            $params[] = $filters['status'];
+        }
+        if ($filters['visibility'] !== '') {
+            $where[] = 'i.is_approved = ?';
+            $params[] = $filters['visibility'] === 'visible' ? 1 : 0;
+        }
+        $from = ' FROM items i JOIN users u ON u.id = i.user_id JOIN categories c ON c.id = i.category_id WHERE ' . implode(' AND ', $where);
+
+        $count = db()->prepare('SELECT COUNT(*)' . $from);
+        $count->execute($params);
+
+        $offset = (max(1, (int) $filters['page']) - 1) * $perPage;
+        $stmt = db()->prepare(
+            'SELECT i.id, i.type, i.title, i.status, i.is_approved, i.created_at, u.name AS owner_name, c.name AS category_name, c.icon AS category_icon,
+                    (SELECT COUNT(*) FROM reports r WHERE r.item_id = i.id AND r.status = \'open\') AS open_reports,
+                    (SELECT file_name FROM item_images im WHERE im.item_id = i.id ORDER BY im.is_primary DESC, im.id LIMIT 1) AS photo'
+            . $from . ' ORDER BY i.created_at DESC, i.id DESC LIMIT ' . (int) $perPage . ' OFFSET ' . (int) $offset
+        );
+        $stmt->execute($params);
+        return ['items' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
+    }
+
+    /** Admin moderation: hide (0) or show (1) a post. */
+    public static function setApproved(int $id, bool $approved): void
+    {
+        db()->prepare('UPDATE items SET is_approved = ? WHERE id = ?')->execute([(int) $approved, $id]);
+    }
+
     public static function setStatus(int $id, string $status): void
     {
         db()->prepare('UPDATE items SET status = ? WHERE id = ?')->execute([$status, $id]);

@@ -22,6 +22,64 @@ final class AdminController extends Controller
     }
 
     // ------------------------------------------------------------------
+    // Items
+    // ------------------------------------------------------------------
+
+    /** GET /admin/items?q=&type=&status=&visibility=&page= */
+    public function items(): void
+    {
+        $filters = [
+            'q'          => mb_substr($this->query('q'), 0, 100),
+            'type'       => in_array($this->query('type'), ['lost', 'found'], true) ? $this->query('type') : '',
+            'status'     => in_array($this->query('status'), Item::STATUSES, true) ? $this->query('status') : '',
+            'visibility' => in_array($this->query('visibility'), ['visible', 'hidden'], true) ? $this->query('visibility') : '',
+            'page'       => max(1, (int) $this->query('page')),
+        ];
+        $result = Item::adminSearch($filters);
+        $this->view('admin/items', [
+            'title'      => 'Manage items',
+            'filters'    => $filters,
+            'items'      => $result['items'],
+            'total'      => $result['total'],
+            'totalPages' => max(1, (int) ceil($result['total'] / 20)),
+        ]);
+    }
+
+    /** POST /admin/items/{id}/visibility  (approved = 1 shows, 0 hides) */
+    public function updateItemVisibility(string $id): void
+    {
+        $item = $this->findItemOr404($id);
+        $show = $this->input('approved') === '1';
+        Item::setApproved((int) $item['id'], $show);
+        if (!$show) {
+            Notification::create((int) $item['user_id'], 'item_moderated',
+                'Your post "' . $item['title'] . '" was hidden by an admin.', '/items/' . $item['id']);
+        }
+        Session::flash('success', '"' . $item['title'] . '" is now ' . ($show ? 'visible to everyone.' : 'hidden from the public.'));
+        redirect(safe_redirect_path($this->input('return_to'), '/admin/items'));
+    }
+
+    /** POST /admin/items/{id}/delete */
+    public function deleteItem(string $id): void
+    {
+        $item = $this->findItemOr404($id);
+        Item::delete((int) $item['id']);
+        Notification::create((int) $item['user_id'], 'item_moderated',
+            'Your post "' . $item['title'] . '" was removed by an admin.', '/my-items');
+        Session::flash('success', '"' . $item['title'] . '" was deleted.');
+        redirect(safe_redirect_path($this->input('return_to'), '/admin/items'));
+    }
+
+    private function findItemOr404(string $id): array
+    {
+        $item = ctype_digit($id) ? Item::find((int) $id) : null;
+        if ($item === null) {
+            abort(404);
+        }
+        return $item;
+    }
+
+    // ------------------------------------------------------------------
     // Users
     // ------------------------------------------------------------------
 

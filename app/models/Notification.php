@@ -9,6 +9,8 @@ final class Notification
         'claim_received' => ['bi-patch-question', 'amber'],
         'claim_approved' => ['bi-patch-check', 'green'],
         'claim_rejected' => ['bi-x-circle', 'rose'],
+        'item_moderated' => ['bi-shield-exclamation', 'slate'],
+        'report_update'  => ['bi-flag', 'indigo'],
     ];
 
     public static function create(int $userId, string $type, string $message, string $link): void
