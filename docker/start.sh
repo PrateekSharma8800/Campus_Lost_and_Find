@@ -2,6 +2,11 @@
 # Container start script (used by the Dockerfile).
 set -e
 
+# Apache may load only ONE "MPM" (process model). PHP needs mpm_prefork, so make
+# sure the others are switched off (fixes "AH00534: More than one MPM loaded").
+rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.*
+a2enmod mpm_prefork >/dev/null 2>&1 || true
+
 # Railway (and similar hosts) tell us which port to listen on.
 PORT="${PORT:-80}"
 sed -ri "s/^Listen [0-9]+/Listen ${PORT}/" /etc/apache2/ports.conf

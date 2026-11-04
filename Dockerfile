@@ -15,7 +15,8 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
  && sed -ri 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf \
- && a2enmod rewrite headers \
+ && a2dismod mpm_event mpm_worker >/dev/null 2>&1 || true \
+ && a2enmod mpm_prefork rewrite headers \
  && printf 'ServerTokens Prod\nServerSignature Off\n' > /etc/apache2/conf-enabled/zz-campusfind.conf
 
 COPY . /var/www/html
