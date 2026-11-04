@@ -44,7 +44,7 @@
         <div class="table-responsive">
             <table class="table admin-table align-middle mb-0">
                 <thead>
-                    <tr><th>Item</th><th>Type</th><th>Status</th><th class="d-none d-md-table-cell">Posted by</th><th class="d-none d-lg-table-cell">Posted</th><th>Visibility</th><th class="text-end">Actions</th></tr>
+                    <tr><th>Item</th><th class="d-none d-sm-table-cell">Type</th><th class="d-none d-sm-table-cell">Status</th><th class="d-none d-md-table-cell">Posted by</th><th class="d-none d-lg-table-cell">Posted</th><th class="d-none d-sm-table-cell">Visibility</th><th class="text-end">Actions</th></tr>
                 </thead>
                 <tbody>
                 <?php foreach ($items as $row): ?>
@@ -58,14 +58,19 @@
                                     <span class="fw-semibold d-block text-truncate"><?= e($row['title']) ?></span>
                                     <span class="small text-muted"><?= e($row['category_name']) ?></span>
                                     <?php if ($row['open_reports'] > 0): ?><span class="pill pill-status-rejected ms-1"><i class="bi bi-flag"></i><?= (int) $row['open_reports'] ?></span><?php endif; ?>
+                                    <!-- On phones the Type/Status/Visibility columns are hidden, so show them here -->
+                                    <span class="d-flex d-sm-none flex-wrap gap-1 mt-1">
+                                        <?= type_badge($row['type']) ?><?= status_badge($row['status']) ?>
+                                        <?= $row['is_approved'] ? '' : '<span class="pill pill-status-closed"><i class="bi bi-eye-slash"></i>Hidden</span>' ?>
+                                    </span>
                                 </span>
                             </a>
                         </td>
-                        <td><?= type_badge($row['type']) ?></td>
-                        <td><?= status_badge($row['status']) ?></td>
+                        <td class="d-none d-sm-table-cell"><?= type_badge($row['type']) ?></td>
+                        <td class="d-none d-sm-table-cell"><?= status_badge($row['status']) ?></td>
                         <td class="d-none d-md-table-cell small"><?= e($row['owner_name']) ?></td>
                         <td class="d-none d-lg-table-cell small"><?= e(time_ago($row['created_at'])) ?></td>
-                        <td><?= $row['is_approved'] ? '<span class="pill pill-status-approved">Visible</span>' : '<span class="pill pill-status-closed"><i class="bi bi-eye-slash"></i>Hidden</span>' ?></td>
+                        <td class="d-none d-sm-table-cell"><?= $row['is_approved'] ? '<span class="pill pill-status-approved">Visible</span>' : '<span class="pill pill-status-closed"><i class="bi bi-eye-slash"></i>Hidden</span>' ?></td>
                         <td class="text-end">
                             <?php View::partial('admin-item-actions', ['itemId' => $row['id'], 'itemTitle' => $row['title'],
                                 'isApproved' => (bool) $row['is_approved'], 'returnTo' => $returnTo]) ?>

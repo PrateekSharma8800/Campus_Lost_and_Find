@@ -42,7 +42,7 @@
     <?php else: ?>
         <div class="row g-3 g-lg-4">
             <?php foreach ($latestItems as $item): ?>
-                <div class="col-12 col-sm-6 col-lg-3"><?php View::partial('item-card', ['item' => $item]) ?></div>
+                <div class="col-6 col-lg-3"><?php View::partial('item-card', ['item' => $item]) ?></div>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>

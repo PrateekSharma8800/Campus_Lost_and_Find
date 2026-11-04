@@ -21,7 +21,7 @@ $hasFilters = $filters['q'] !== '' || $filters['category'] !== '' || $filters['l
         <div class="col-12 col-lg-4">
             <div class="search-input">
                 <i class="bi bi-search" aria-hidden="true"></i>
-                <input type="search" name="q" class="form-control" placeholder="Search e.g. wallet, calculator, ID card"
+                <input type="search" name="q" class="form-control" placeholder="Search wallet, phone, ID card…"
                        value="<?= e($filters['q']) ?>" maxlength="100" aria-label="Search items">
             </div>
         </div>
@@ -75,7 +75,7 @@ $hasFilters = $filters['q'] !== '' || $filters['category'] !== '' || $filters['l
 <?php else: ?>
     <div class="row g-3 g-lg-4">
         <?php foreach ($items as $item): ?>
-            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <div class="col-6 col-lg-4 col-xl-3">
                 <?php View::partial('item-card', ['item' => $item]) ?>
             </div>
         <?php endforeach; ?>

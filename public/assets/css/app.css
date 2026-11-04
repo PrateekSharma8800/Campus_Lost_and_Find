@@ -434,3 +434,35 @@ a.stat-card:hover { border-color: #c7d2fe !important; box-shadow: var(--cf-shado
 .admin-table tbody tr:hover { background: #fafbfe; }
 .admin-table .min-w-0 { max-width: 16rem; }
 .bar.h-pct-0 { min-height: 0; }
+
+/* ---------- 19. Small-screen polish ---------- */
+.type-tabs { flex-wrap: wrap; max-width: 100%; }
+@media (max-width: 575.98px) {
+    /* Two-column item grid on phones: tighter card text */
+    .item-body { padding: .7rem .75rem .8rem; gap: .2rem; }
+    .item-title { font-size: .9rem; }
+    .item-meta { font-size: .75rem; }
+    .item-media .placeholder-icon { font-size: 2.2rem; }
+    .item-media .media-badges { top: .45rem; left: .45rem; right: .45rem; }
+    .item-media .pill { font-size: .68rem; padding: .15rem .45rem; }
+    /* Dashboard quick actions share the row equally */
+    .quick-actions { width: 100%; }
+    .quick-actions .btn { flex: 1; font-size: .875rem; padding: .55rem .5rem; white-space: nowrap; }
+    /* Admin tabs: one tidy row of four */
+    .admin-tabs { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
+    .admin-tabs a { justify-content: center; padding: .45rem .25rem; font-size: .8rem; }
+    .admin-tabs a .bi { display: none; }
+    .admin-table td, .admin-table th { padding: .65rem .6rem; }
+    .admin-table .min-w-0 { max-width: 12rem; }
+    .page-header h1 { font-size: 1.45rem; }
+}
+/* Laptops (992–1199px): the full logged-in navbar is too wide, so show the avatar only */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .nav-user-name { display: none; }
+    .app-navbar .nav-link { padding: .45rem .55rem !important; }
+    .app-navbar .navbar-nav { margin-left: .5rem !important; }
+}
+/* Very small phones: stack the dashboard buttons */
+@media (max-width: 359.98px) {
+    .quick-actions { flex-direction: column; }
+}

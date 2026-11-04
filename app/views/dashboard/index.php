@@ -5,7 +5,7 @@
             <span class="pill <?= $user['role'] === 'admin' ? 'pill-lost' : 'pill-status-closed' ?> ms-1"><?= e(ucfirst($user['role'])) ?></span>
         </p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 quick-actions">
         <a href="/items/new?type=lost" class="btn btn-light"><i class="bi bi-exclamation-circle text-danger me-1"></i>I lost something</a>
         <a href="/items/new?type=found" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>I found something</a>
     </div>

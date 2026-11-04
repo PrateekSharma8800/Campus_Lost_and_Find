@@ -29,7 +29,7 @@
         <div class="table-responsive">
             <table class="table admin-table align-middle mb-0">
                 <thead>
-                    <tr><th>User</th><th>Role</th><th class="d-none d-md-table-cell">Items</th><th class="d-none d-lg-table-cell">Joined</th><th class="d-none d-lg-table-cell">Last login</th><th>Status</th><th class="text-end">Action</th></tr>
+                    <tr><th>User</th><th class="d-none d-sm-table-cell">Role</th><th class="d-none d-md-table-cell">Items</th><th class="d-none d-lg-table-cell">Joined</th><th class="d-none d-lg-table-cell">Last login</th><th class="d-none d-sm-table-cell">Status</th><th class="text-end">Action</th></tr>
                 </thead>
                 <tbody>
                 <?php foreach ($users as $row): $isActive = (bool) $row['is_active']; ?>
@@ -40,17 +40,22 @@
                                 <div class="min-w-0">
                                     <div class="fw-semibold text-truncate"><?= e($row['name']) ?></div>
                                     <div class="small text-muted text-truncate"><?= e($row['email']) ?><?= $row['student_id'] ? ' · ' . e($row['student_id']) : '' ?></div>
+                                    <!-- On phones the Role/Status columns are hidden, so show them here -->
+                                    <div class="d-sm-none mt-1 d-flex gap-1">
+                                        <?= $row['role'] === 'admin' ? '<span class="pill pill-lost">Admin</span>' : '' ?>
+                                        <?= $isActive ? '<span class="pill pill-status-approved">Active</span>' : '<span class="pill pill-status-rejected">Deactivated</span>' ?>
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td><span class="pill <?= $row['role'] === 'admin' ? 'pill-lost' : 'pill-status-closed' ?>"><?= e(ucfirst($row['role'])) ?></span></td>
+                        <td class="d-none d-sm-table-cell"><span class="pill <?= $row['role'] === 'admin' ? 'pill-lost' : 'pill-status-closed' ?>"><?= e(ucfirst($row['role'])) ?></span></td>
                         <td class="d-none d-md-table-cell"><?= (int) $row['item_count'] ?></td>
                         <td class="d-none d-lg-table-cell small"><?= e(format_date($row['created_at'])) ?></td>
                         <td class="d-none d-lg-table-cell small"><?= $row['last_login_at'] ? e(time_ago($row['last_login_at'])) : '<span class="text-muted">Never</span>' ?></td>
-                        <td><?= $isActive ? '<span class="pill pill-status-approved">Active</span>' : '<span class="pill pill-status-rejected">Deactivated</span>' ?></td>
+                        <td class="d-none d-sm-table-cell"><?= $isActive ? '<span class="pill pill-status-approved">Active</span>' : '<span class="pill pill-status-rejected">Deactivated</span>' ?></td>
                         <td class="text-end">
                             <?php if ($row['role'] === 'admin'): ?>
-                                <span class="small text-muted">Protected</span>
+                                <span class="small text-muted"><i class="bi bi-lock d-sm-none" title="Protected"></i><span class="d-none d-sm-inline">Protected</span></span>
                             <?php else: ?>
                                 <form method="post" action="/admin/users/<?= (int) $row['id'] ?>/status" class="d-inline"
                                       data-confirm="<?= e($isActive ? "Deactivate {$row['name']}? They will be signed out and cannot log in." : "Reactivate {$row['name']}? They will be able to log in again.") ?>">
@@ -58,7 +63,7 @@
                                     <input type="hidden" name="active" value="<?= $isActive ? '0' : '1' ?>">
                                     <input type="hidden" name="return_to" value="<?= e($_SERVER['REQUEST_URI'] ?? '/admin/users') ?>">
                                     <button type="submit" class="btn btn-sm <?= $isActive ? 'btn-soft-danger' : 'btn-light' ?>">
-                                        <?= $isActive ? '<i class="bi bi-person-x me-1"></i>Deactivate' : '<i class="bi bi-person-check me-1"></i>Activate' ?>
+                                        <i class="bi bi-person-<?= $isActive ? 'x' : 'check' ?>"></i><span class="d-none d-sm-inline ms-1"><?= $isActive ? 'Deactivate' : 'Activate' ?></span>
                                     </button>
                                 </form>
                             <?php endif; ?>
