@@ -1,0 +1,17 @@
+# Secrets - never commit
+.env
+.env.*
+!.env.example
+
+# Runtime data
+storage/logs/*
+!storage/logs/.gitkeep
+storage/sessions/*
+!storage/sessions/.gitkeep
+storage/uploads/items/*
+!storage/uploads/items/.gitkeep
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

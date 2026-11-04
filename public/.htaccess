@@ -1,0 +1,13 @@
+# Used only if the site is later served by Apache (not needed for php -S).
+Options -Indexes
+
+# Never serve dotfiles (.gitkeep, .htaccess ...)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
