@@ -22,6 +22,56 @@ final class AdminController extends Controller
     }
 
     // ------------------------------------------------------------------
+    // Reports
+    // ------------------------------------------------------------------
+
+    /** GET /admin/reports?status=open|resolved|dismissed|all */
+    public function reports(): void
+    {
+        $status = $this->query('status');
+        $status = in_array($status, ['open', 'resolved', 'dismissed', 'all'], true) ? $status : 'open';
+        $this->view('admin/reports', [
+            'title'   => 'Review reports',
+            'status'  => $status,
+            'reports' => Report::forAdmin($status === 'all' ? '' : $status),
+        ]);
+    }
+
+    /** GET /admin/reports/{id} - investigate one report */
+    public function showReport(string $id): void
+    {
+        $report = $this->findReportOr404($id);
+        $this->view('admin/report', ['title' => 'Report #' . $report['id'], 'report' => $report]);
+    }
+
+    /** POST /admin/reports/{id}/status  (status = resolved | dismissed | open) */
+    public function updateReportStatus(string $id): void
+    {
+        $report = $this->findReportOr404($id);
+        $status = $this->input('status');
+        if (!in_array($status, ['resolved', 'dismissed', 'open'], true)) {
+            abort(400);
+        }
+        Report::setStatus((int) $report['id'], $status, Auth::id());
+
+        if ($status !== 'open') {
+            Notification::create((int) $report['reporter_id'], 'report_update',
+                'Your report was reviewed and ' . $status . '. Thank you for keeping CampusFind safe.', '/my-reports');
+        }
+        Session::flash('success', 'Report #' . $report['id'] . ' marked as ' . Report::STATUS_LABELS[$status] . '.');
+        redirect('/admin/reports/' . $report['id']);
+    }
+
+    private function findReportOr404(string $id): array
+    {
+        $report = ctype_digit($id) ? Report::findForAdmin((int) $id) : null;
+        if ($report === null) {
+            abort(404);
+        }
+        return $report;
+    }
+
+    // ------------------------------------------------------------------
     // Items
     // ------------------------------------------------------------------
 

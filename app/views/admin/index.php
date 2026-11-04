@@ -5,7 +5,8 @@ View::partial('admin-nav', ['active' => 'overview']);
 $maxPerDay   = max(1, ...array_map(fn ($d) => max($d['lost'], $d['found']), array_values($perDay)));
 $maxCategory = max(1, ...array_map(fn ($c) => (int) $c['total'], $byCategory));
 $totalItems  = max(1, array_sum($byStatus));
-$pct = fn (int $value, int $max) => (int) (round($value / $max * 20) * 5);   // 0, 5, 10 ... 100
+// 0 stays 0 (no bar); any other value shows at least 5% so small numbers stay visible.
+$pct = fn (int $value, int $max) => $value === 0 ? 0 : max(5, (int) (round($value / $max * 20) * 5));
 $activityIcons = [
     'user' => ['person-plus', 'indigo', 'New user'], 'item_lost' => ['exclamation-circle', 'rose', 'Lost item posted'],
     'item_found' => ['check-circle', 'green', 'Found item posted'], 'claim' => ['patch-question', 'amber', 'Claim on'],

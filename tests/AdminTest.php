@@ -14,7 +14,7 @@ $studentItem = Item::create($studentId, ['type' => 'lost', 'title' => 'Admin tes
 $adminPost = fn (string $path, array $fields = []) => $admin->post($path, $fields + ['_token' => $admin->token('/admin')]);
 
 test('Admin: guests go to login, students get 403 on every admin page', function () use ($student) {
-    foreach (['/admin', '/admin/users', '/admin/items'] as $page) {
+    foreach (['/admin', '/admin/users', '/admin/items', '/admin/reports'] as $page) {
         assert_redirect((new Client())->get($page), '/login', $page);
         assert_same(403, $student->get($page)['status'], $page);
     }
@@ -96,4 +96,35 @@ test('Admin items: delete removes the post; students cannot moderate', function 
     assert_redirect($adminPost("/admin/items/$victim/delete"), '/admin/items');
     assert_same(null, Item::find($victim));
     assert_same(404, $adminPost('/admin/items/999999/delete')['status']);
+});
+
+test('Admin reports: open list, detail page with post + owner, students blocked', function () use ($admin, $student, $studentItem, $studentId) {
+    $reporterId = User::create(['name' => 'Rep Orter', 'email' => 'rep@admin.test', 'password' => 'campus123']);
+    Report::create($reporterId, $studentItem, $studentId, 'fake', 'This notebook post looks fake to me.');
+    $reportId = (int) test_pdo()->query("SELECT id FROM reports WHERE reporter_id = $reporterId")->fetchColumn();
+    $GLOBALS['adminReportId'] = $reportId;
+
+    $list = $admin->get('/admin/reports')['body'];
+    assert_contains('Admin test notebook', $list);
+    assert_contains('Fake or misleading post', $list);
+    $detail = $admin->get("/admin/reports/$reportId")['body'];
+    foreach (['This notebook post looks fake', 'Rep Orter', 'Stu Dent', 'Deactivate account', 'Resolve', 'Dismiss'] as $text) {
+        assert_contains($text, $detail);
+    }
+    assert_same(403, $student->get("/admin/reports/$reportId")['status']);
+    assert_same(404, $admin->get('/admin/reports/999999')['status']);
+    assert_contains('No reports here', $admin->get('/admin/reports?status=dismissed')['body']);
+});
+
+test('Admin reports: resolve notifies the reporter; reopen and invalid status handled', function () use ($adminPost) {
+    $reportId = $GLOBALS['adminReportId'];
+    assert_redirect($adminPost("/admin/reports/$reportId/status", ['status' => 'resolved']), "/admin/reports/$reportId");
+    $row = Report::findForAdmin($reportId);
+    assert_same('resolved', $row['status']);
+    assert_same('Ada Admin', $row['reviewer_name']);
+    assert_same('report_update', Notification::forUser((int) $row['reporter_id'])[0]['type']);
+    assert_same(400, $adminPost("/admin/reports/$reportId/status", ['status' => 'deleted'])['status']);
+    $adminPost("/admin/reports/$reportId/status", ['status' => 'open']);
+    assert_same('open', Report::findForAdmin($reportId)['status']);
+    test_pdo()->exec("DELETE FROM reports WHERE id = $reportId");   // keep other test files' report counts independent
 });

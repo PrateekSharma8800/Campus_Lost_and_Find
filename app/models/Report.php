@@ -79,6 +79,27 @@ final class Report
         return $stmt->fetchAll();
     }
 
+    /** One report with everything an admin needs to investigate it. */
+    public static function findForAdmin(int $id): ?array
+    {
+        $stmt = db()->prepare(
+            'SELECT r.*, i.title AS item_title, i.type AS item_type, i.status AS item_status, i.is_approved AS item_approved,
+                    i.description AS item_description,
+                    u.name AS reported_user_name, u.email AS reported_user_email, u.role AS reported_user_role,
+                    u.is_active AS reported_user_active, u.created_at AS reported_user_joined,
+                    rep.name AS reporter_name, rep.email AS reporter_email, adm.name AS reviewer_name,
+                    (SELECT COUNT(*) FROM reports r2 WHERE r2.reported_user_id = r.reported_user_id) AS reports_against_user
+               FROM reports r
+               LEFT JOIN items i   ON i.id = r.item_id
+               LEFT JOIN users u   ON u.id = r.reported_user_id
+               JOIN users rep      ON rep.id = r.reporter_id
+               LEFT JOIN users adm ON adm.id = r.reviewed_by
+              WHERE r.id = ?'
+        );
+        $stmt->execute([$id]);
+        return $stmt->fetch() ?: null;
+    }
+
     public static function countOpen(): int
     {
         return (int) db()->query("SELECT COUNT(*) FROM reports WHERE status = 'open'")->fetchColumn();

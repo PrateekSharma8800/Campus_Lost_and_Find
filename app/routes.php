@@ -57,6 +57,9 @@ $router->get('/my-reports',  [ReportController::class, 'mine'],   ['auth']);
 // Signed-in areas
 $router->get('/dashboard', [DashboardController::class, 'index'], ['auth']);
 $router->get('/admin',     [AdminController::class, 'index'],     ['admin']);
+$router->get('/admin/reports',               [AdminController::class, 'reports'],              ['admin']);
+$router->get('/admin/reports/{id}',          [AdminController::class, 'showReport'],           ['admin']);
+$router->post('/admin/reports/{id}/status',  [AdminController::class, 'updateReportStatus'],   ['admin']);
 $router->get('/admin/items',                  [AdminController::class, 'items'],                ['admin']);
 $router->post('/admin/items/{id}/visibility', [AdminController::class, 'updateItemVisibility'], ['admin']);
 $router->post('/admin/items/{id}/delete',     [AdminController::class, 'deleteItem'],           ['admin']);
