@@ -97,6 +97,43 @@ final class User
         return array_map('intval', $row);
     }
 
+    /**
+     * Admin user list with search and filters.
+     * $status: '' | 'active' | 'inactive'; returns ['users' => [...], 'total' => n]
+     */
+    public static function adminSearch(string $search, string $status, int $page, int $perPage = 20): array
+    {
+        $where = ['1 = 1'];
+        $params = [];
+        if ($search !== '') {
+            $like = '%' . addcslashes($search, '%_\\') . '%';
+            $where[] = '(u.name LIKE ? OR u.email LIKE ? OR u.student_id LIKE ?)';
+            array_push($params, $like, $like, $like);
+        }
+        if ($status === 'active' || $status === 'inactive') {
+            $where[] = 'u.is_active = ?';
+            $params[] = $status === 'active' ? 1 : 0;
+        }
+        $whereSql = ' WHERE ' . implode(' AND ', $where);
+
+        $count = db()->prepare('SELECT COUNT(*) FROM users u' . $whereSql);
+        $count->execute($params);
+
+        $offset = (max(1, $page) - 1) * $perPage;
+        $stmt = db()->prepare(
+            'SELECT u.id, u.name, u.email, u.student_id, u.role, u.is_active, u.created_at, u.last_login_at,
+                    (SELECT COUNT(*) FROM items i WHERE i.user_id = u.id) AS item_count
+               FROM users u' . $whereSql . ' ORDER BY u.created_at DESC, u.id DESC LIMIT ' . (int) $perPage . ' OFFSET ' . (int) $offset
+        );
+        $stmt->execute($params);
+        return ['users' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
+    }
+
+    public static function setActive(int $id, bool $active): void
+    {
+        db()->prepare('UPDATE users SET is_active = ? WHERE id = ?')->execute([(int) $active, $id]);
+    }
+
     public static function normalizeEmail(string $email): string
     {
         return mb_strtolower(trim($email));

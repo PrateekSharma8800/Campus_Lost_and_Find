@@ -57,5 +57,7 @@ $router->get('/my-reports',  [ReportController::class, 'mine'],   ['auth']);
 // Signed-in areas
 $router->get('/dashboard', [DashboardController::class, 'index'], ['auth']);
 $router->get('/admin',     [AdminController::class, 'index'],     ['admin']);
+$router->get('/admin/users',              [AdminController::class, 'users'],            ['admin']);
+$router->post('/admin/users/{id}/status', [AdminController::class, 'updateUserStatus'], ['admin']);
 
 return $router;
