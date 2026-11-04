@@ -103,7 +103,27 @@ final class Validator
                 ? null : "$label must contain at least one letter and one number.",
             'regex' => preg_match((string) $arg, $value) === 1
                 ? null : "$label format is invalid.",
+            // in:lost,found -> value must be one of the listed options
+            'in' => in_array($value, explode(',', (string) $arg), true)
+                ? null : "Please choose a valid $label.",
+            'integer' => ctype_digit($value)
+                ? null : "Please choose a valid $label.",
+            'past_date' => self::isRecentPastDate($value)
+                ? null : "$label must be a valid date within the last year (not in the future).",
             default => throw new InvalidArgumentException("Unknown validation rule: $rule"),
         };
+    }
+
+    /** A real YYYY-MM-DD date, not in the future and not older than one year. */
+    private static function isRecentPastDate(string $value): bool
+    {
+        $date = DateTime::createFromFormat('!Y-m-d', $value);
+        if ($date === false || $date->format('Y-m-d') !== $value) {
+            return false;   // wrong format or impossible date like 2026-02-30
+        }
+        // Server time is UTC; allowing "tomorrow" covers users ahead of UTC (e.g. India).
+        $latest   = gmdate('Y-m-d', strtotime('+1 day'));
+        $earliest = gmdate('Y-m-d', strtotime('-1 year'));
+        return $value >= $earliest && $value <= $latest;
     }
 }

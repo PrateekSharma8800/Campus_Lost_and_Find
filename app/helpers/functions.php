@@ -87,6 +87,7 @@ function abort(int $code, ?string $message = null): never
         403 => 'Access denied',
         404 => 'Page not found',
         405 => 'Method not allowed',
+        413 => 'Upload too large',
         419 => 'Page expired',
         429 => 'Too many requests',
         500 => 'Something went wrong',
@@ -116,7 +117,7 @@ function send_security_headers(): void
         . "script-src 'self' https://cdn.jsdelivr.net; "
         . "style-src 'self' https://cdn.jsdelivr.net; "
         . "font-src 'self' https://cdn.jsdelivr.net; "
-        . "img-src 'self' data:; "
+        . "img-src 'self' data: blob:; "
         . "form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'");
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: DENY');
@@ -127,4 +128,60 @@ function send_security_headers(): void
     if (is_https()) {
         header('Strict-Transport-Security: max-age=31536000');
     }
+}
+
+// ---------------------------------------------------------------------
+// Item display helpers
+// ---------------------------------------------------------------------
+
+/** URL of an uploaded item photo (served through PHP, see ItemController::photo). */
+function photo_url(string $fileName): string
+{
+    return '/uploads/' . rawurlencode($fileName);
+}
+
+/** "12 Mar 2026" */
+function format_date(?string $date): string
+{
+    return $date ? date('d M Y', strtotime($date . ' UTC')) : '';
+}
+
+/** "5 minutes ago", "3 days ago" ... */
+function time_ago(string $datetime): string
+{
+    $seconds = time() - strtotime($datetime . ' UTC');
+    $units = ['year' => 31536000, 'month' => 2592000, 'week' => 604800, 'day' => 86400, 'hour' => 3600, 'minute' => 60];
+    foreach ($units as $name => $size) {
+        if ($seconds >= $size) {
+            $count = intdiv($seconds, $size);
+            return $count . ' ' . $name . ($count > 1 ? 's' : '') . ' ago';
+        }
+    }
+    return 'just now';
+}
+
+/** Coloured "Lost" / "Found" pill. */
+function type_badge(string $type): string
+{
+    return $type === 'lost'
+        ? '<span class="pill pill-lost"><i class="bi bi-exclamation-circle"></i>Lost</span>'
+        : '<span class="pill pill-found"><i class="bi bi-check-circle"></i>Found</span>';
+}
+
+/** Coloured status pill: open, claimed, returned, closed (and claim statuses). */
+function status_badge(string $status): string
+{
+    $labels = [
+        'open' => 'Open', 'claimed' => 'Claimed', 'returned' => 'Returned', 'closed' => 'Closed',
+        'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected',
+    ];
+    $label = $labels[$status] ?? ucfirst($status);
+    return '<span class="pill pill-status-' . e($status) . '">' . e($label) . '</span>';
+}
+
+/** Build a URL to the browse page keeping current filters, e.g. for pagination. */
+function items_url(array $filters, array $changes = []): string
+{
+    $query = array_filter(array_merge($filters, $changes), fn ($v) => $v !== '' && $v !== null && $v !== 1);
+    return '/items' . ($query ? '?' . http_build_query($query) : '');
 }

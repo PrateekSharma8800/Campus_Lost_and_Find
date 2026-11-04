@@ -43,6 +43,10 @@ final class Router
             }
 
             if ($method === 'POST') {
+                // If the upload is bigger than post_max_size, PHP drops ALL form data.
+                if (empty($_POST) && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+                    abort(413, 'The files you uploaded are too large. Please use smaller photos.');
+                }
                 $token = $_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
                 if (!Csrf::verify(is_string($token) ? $token : null)) {
                     abort(419);
