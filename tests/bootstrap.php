@@ -206,6 +206,24 @@ final class Client
         return $this->send($path);
     }
 
+    /** POST multipart/form-data (file uploads). $files: field name => local path. */
+    public function postFiles(string $path, array $fields, array $files): array
+    {
+        $body = $fields;
+        foreach ($files as $name => $file) {
+            $body[$name] = new CURLFile($file, '', basename($file));
+        }
+        curl_setopt($this->ch, CURLOPT_POST, true);
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $body);
+        return $this->send($path);
+    }
+
+    /** CSRF token from any page the client can open. */
+    public function token(string $page = '/'): string
+    {
+        return self::csrf($this->get($page)['body']);
+    }
+
     /** GET the form page, then POST with its CSRF token. */
     public function submit(string $formPath, array $fields, ?string $action = null): array
     {
