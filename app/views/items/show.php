@@ -89,6 +89,9 @@ $itemId = (int) $item['id'];
                         <i class="bi bi-chat-dots me-1"></i><?= $item['type'] === 'lost' ? 'I found this, message ' : 'Message ' ?><?= e($item['owner_name']) ?>
                     </a>
                 </div>
+                <div class="text-center mt-3">
+                    <a href="/reports/new?item=<?= $itemId ?>" class="small text-muted"><i class="bi bi-flag me-1"></i>Report this post</a>
+                </div>
 
             <?php else: ?>
                 <a href="/login" class="btn btn-primary w-100 py-2">

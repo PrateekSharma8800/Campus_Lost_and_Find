@@ -31,6 +31,9 @@ foreach ($messages as $message) {
                     <?= (int) $item['user_id'] === $myId ? 'About your post' : 'Posted' ?> &middot; <?= e($item['title']) ?>
                 </div>
             </div>
+            <?php if ($messages): ?>
+                <a href="/reports/new?user=<?= (int) $otherUser['id'] ?>" class="btn btn-light btn-sm" title="Report user" aria-label="Report <?= e($otherUser['name']) ?>"><i class="bi bi-flag"></i></a>
+            <?php endif; ?>
             <a href="/items/<?= (int) $item['id'] ?>" class="chat-item-link d-none d-sm-flex">
                 <span class="list-thumb list-thumb-sm">
                     <?php if ($itemPhoto): ?><img src="<?= e(photo_url($itemPhoto)) ?>" alt=""><?php else: ?><i class="bi bi-box"></i><?php endif; ?>

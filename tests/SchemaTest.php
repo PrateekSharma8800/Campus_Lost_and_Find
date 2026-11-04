@@ -44,8 +44,8 @@ test('every table uses InnoDB and utf8mb4_unicode_ci', function () use ($pdo) {
     }
 });
 
-test('foreign keys are all defined (15 total)', function () use ($count) {
-    assert_same(15, $count("SELECT COUNT(*) FROM information_schema.referential_constraints
+test('foreign keys are all defined (16 total)', function () use ($count) {
+    assert_same(16, $count("SELECT COUNT(*) FROM information_schema.referential_constraints
                             WHERE constraint_schema = DATABASE()"));
 });
 

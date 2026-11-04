@@ -49,6 +49,11 @@ $router->get('/notifications',            [NotificationController::class, 'index
 $router->post('/notifications/read-all',  [NotificationController::class, 'readAll'], ['auth']);
 $router->post('/notifications/{id}/open', [NotificationController::class, 'open'],    ['auth']);
 
+// Reports
+$router->get('/reports/new', [ReportController::class, 'create'], ['auth']);
+$router->post('/reports',    [ReportController::class, 'store'],  ['auth']);
+$router->get('/my-reports',  [ReportController::class, 'mine'],   ['auth']);
+
 // Signed-in areas
 $router->get('/dashboard', [DashboardController::class, 'index'], ['auth']);
 $router->get('/admin',     [AdminController::class, 'index'],     ['admin']);

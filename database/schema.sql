@@ -193,13 +193,15 @@ CREATE TABLE password_resets (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
--- reports: users flag inappropriate or fake posts
+-- reports: users flag inappropriate posts or misbehaving users.
+-- At least one of item_id / reported_user_id is set (checked in the app).
 -- ---------------------------------------------------------------------
 CREATE TABLE reports (
     id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    item_id      INT UNSIGNED NOT NULL,
+    item_id      INT UNSIGNED NULL,
+    reported_user_id INT UNSIGNED NULL,
     reporter_id  INT UNSIGNED NOT NULL,
-    reason       ENUM('spam','fake','inappropriate','duplicate','other') NOT NULL,
+    reason       ENUM('spam','fake','inappropriate','duplicate','suspicious','harassment','scam','other') NOT NULL,
     details      VARCHAR(500) NULL,
     status       ENUM('open','resolved','dismissed') NOT NULL DEFAULT 'open',
     reviewed_by  INT UNSIGNED NULL,
@@ -208,7 +210,9 @@ CREATE TABLE reports (
     PRIMARY KEY (id),
     UNIQUE KEY uq_reports_item_reporter (item_id, reporter_id),  -- one report per person per item
     KEY idx_reports_status (status),
+    KEY idx_reports_reported_user (reported_user_id),
     CONSTRAINT fk_reports_item     FOREIGN KEY (item_id)     REFERENCES items (id) ON DELETE CASCADE,
+    CONSTRAINT fk_reports_reported_user FOREIGN KEY (reported_user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_reports_reviewer FOREIGN KEY (reviewed_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

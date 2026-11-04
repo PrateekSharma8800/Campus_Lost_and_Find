@@ -65,6 +65,7 @@ $active = fn (string $prefix) => ($prefix === '/' ? $path === '/' : str_starts_w
                             <li><a class="dropdown-item" href="/my-claims"><i class="bi bi-patch-check me-2"></i>My claims</a></li>
                             <li><a class="dropdown-item" href="/messages"><i class="bi bi-chat-dots me-2"></i>Messages</a></li>
                             <li><a class="dropdown-item" href="/notifications"><i class="bi bi-bell me-2"></i>Notifications</a></li>
+                            <li><a class="dropdown-item" href="/my-reports"><i class="bi bi-flag me-2"></i>My reports</a></li>
                             <?php if ($user['role'] === 'admin'): ?>
                                 <li><a class="dropdown-item" href="/admin"><i class="bi bi-shield-lock me-2"></i>Admin panel</a></li>
                             <?php endif; ?>
