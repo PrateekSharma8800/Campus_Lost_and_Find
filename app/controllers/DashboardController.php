@@ -12,6 +12,7 @@ final class DashboardController extends Controller
             'stats'          => Item::statsForUser($userId),
             'claimsMade'     => Claim::countForUser($userId),
             'pendingReviews' => Claim::pendingForOwner($userId),
+            'unreadMessages' => Message::unreadCount($userId),
             'recentItems'    => array_slice(Item::forUser($userId), 0, 5),
         ]);
     }

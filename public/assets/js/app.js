@@ -21,7 +21,10 @@
         form.addEventListener('submit', function () {
             form.querySelectorAll('button[type="submit"]').forEach(function (button) {
                 button.disabled = true;
-                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Please wait…';
+                // Icon-only buttons (like the chat send button) just show the spinner.
+                button.innerHTML = button.textContent.trim() === ''
+                    ? '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>'
+                    : '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Please wait…';
             });
         });
     });
@@ -72,6 +75,43 @@
             event.preventDefault();
             photoInput.files = event.dataTransfer.files;
             showPreviews();
+        });
+    }
+
+    // ---------- Chat ----------
+    var chatBody = document.querySelector('[data-chat-body]');
+    if (chatBody) {
+        chatBody.scrollTop = chatBody.scrollHeight;   // start at the newest message
+    }
+
+    // Show message times in the reader's own time zone.
+    document.querySelectorAll('time[data-local-time]').forEach(function (time) {
+        var date = new Date(time.getAttribute('datetime'));
+        if (!isNaN(date)) {
+            time.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+    });
+
+    var chatInput = document.querySelector('[data-chat-input]');
+    var chatForm = document.querySelector('[data-chat-form]');
+    var charCount = document.querySelector('[data-char-count]');
+    if (chatInput && chatForm) {
+        var resize = function () {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 160) + 'px';   // grow up to ~6 lines
+            if (charCount) charCount.textContent = chatInput.value.length;
+        };
+        chatInput.addEventListener('input', resize);
+        resize();
+
+        // Enter sends the message, Shift+Enter adds a new line.
+        chatInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+                event.preventDefault();
+                if (chatInput.value.trim() !== '') {
+                    chatForm.requestSubmit();
+                }
+            }
         });
     }
 

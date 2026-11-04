@@ -39,6 +39,11 @@ $router->post('/claims/{id}/approve', [ClaimController::class, 'approve'], ['aut
 $router->post('/claims/{id}/reject',  [ClaimController::class, 'reject'],  ['auth']);
 $router->get('/my-claims',            [ClaimController::class, 'mine'],    ['auth']);
 
+// Private messages (always about one item, between its poster and one other user)
+$router->get('/messages',                 [MessageController::class, 'index'], ['auth']);
+$router->get('/messages/{itemId}/{userId}',   [MessageController::class, 'show'],  ['auth']);
+$router->post('/messages/{itemId}/{userId}',  [MessageController::class, 'send'],  ['auth']);
+
 // Signed-in areas
 $router->get('/dashboard', [DashboardController::class, 'index'], ['auth']);
 $router->get('/admin',     [AdminController::class, 'index'],     ['admin']);

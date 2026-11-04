@@ -75,20 +75,25 @@ $itemId = (int) $item['id'];
                     <button type="button" class="btn btn-soft-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="bi bi-trash me-1"></i>Delete</button>
                 </div>
 
-            <?php elseif ($myClaim): ?>
-                <div class="alert alert-light border mb-0 d-flex gap-2 align-items-center">
-                    <i class="bi bi-patch-check text-primary fs-5"></i>
-                    <div>You claimed this item <?= e(time_ago($myClaim['created_at'])) ?>. Status: <?= status_badge($myClaim['status']) ?></div>
+            <?php elseif (Auth::check()): ?>
+                <div class="d-grid gap-2">
+                    <?php if ($myClaim): ?>
+                        <div class="alert alert-light border mb-0 d-flex gap-2 align-items-center">
+                            <i class="bi bi-patch-check text-primary fs-5"></i>
+                            <div>You claimed this item <?= e(time_ago($myClaim['created_at'])) ?>. Status: <?= status_badge($myClaim['status']) ?></div>
+                        </div>
+                    <?php elseif ($canClaim): ?>
+                        <a href="#claim" class="btn btn-primary py-2"><i class="bi bi-hand-index-thumb me-1"></i>This is mine, claim it</a>
+                    <?php endif; ?>
+                    <a href="/messages/<?= $itemId ?>/<?= (int) $item['user_id'] ?>" class="btn btn-light py-2">
+                        <i class="bi bi-chat-dots me-1"></i><?= $item['type'] === 'lost' ? 'I found this, message ' : 'Message ' ?><?= e($item['owner_name']) ?>
+                    </a>
                 </div>
 
-            <?php elseif ($canClaim): ?>
-                <a href="#claim" class="btn btn-primary w-100 py-2"><i class="bi bi-hand-index-thumb me-1"></i>This is mine, claim it</a>
-
-            <?php elseif (!Auth::check() && $item['type'] === 'found' && $item['status'] === 'open'): ?>
-                <a href="/login" class="btn btn-primary w-100 py-2">Log in to claim this item</a>
-
-            <?php elseif ($item['type'] === 'lost' && $item['status'] === 'open'): ?>
-                <div class="alert alert-light border mb-0 small"><i class="bi bi-info-circle me-1"></i>Found this item? Messaging the owner is coming in the next update.</div>
+            <?php else: ?>
+                <a href="/login" class="btn btn-primary w-100 py-2">
+                    <?= $item['type'] === 'found' && $item['status'] === 'open' ? 'Log in to claim this item' : 'Log in to contact ' . e($item['owner_name']) ?>
+                </a>
             <?php endif; ?>
         </div>
     </div>
@@ -142,16 +147,17 @@ $itemId = (int) $item['id'];
                         </div>
                         <p class="small mb-1"><span class="text-muted">Identifying detail:</span> <?= e($claim['proof_answer']) ?></p>
                         <p class="small mb-0 text-break"><span class="text-muted">Message:</span> <?= e($claim['message']) ?></p>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <a href="/messages/<?= $itemId ?>/<?= (int) $claim['claimant_id'] ?>" class="btn btn-sm btn-light"><i class="bi bi-chat-dots me-1"></i>Message</a>
                         <?php if ($claim['status'] === 'pending' && $item['status'] === 'open'): ?>
-                            <div class="d-flex gap-2 mt-3">
                                 <form method="post" action="/claims/<?= (int) $claim['id'] ?>/approve">
                                     <?= csrf_field() ?><button class="btn btn-sm btn-primary"><i class="bi bi-check-lg me-1"></i>Approve</button>
                                 </form>
                                 <form method="post" action="/claims/<?= (int) $claim['id'] ?>/reject">
                                     <?= csrf_field() ?><button class="btn btn-sm btn-light"><i class="bi bi-x-lg me-1"></i>Reject</button>
                                 </form>
-                            </div>
                         <?php endif; ?>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>

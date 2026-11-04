@@ -23,7 +23,7 @@ final class Router
 
     private function add(string $method, string $path, array $handler, array $middleware): void
     {
-        $regex = '#^' . preg_replace('#\{([a-z_]+)\}#', '(?P<$1>[^/]+)', $path) . '$#';
+        $regex = '#^' . preg_replace('#\{([a-zA-Z_]+)\}#', '(?P<$1>[^/]+)', $path) . '$#';
         $this->routes[] = compact('method', 'regex', 'handler', 'middleware');
     }
 

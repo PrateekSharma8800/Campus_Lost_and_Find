@@ -1,5 +1,6 @@
 <?php
 $user = Auth::user();
+$unreadMessages = $user ? Message::unreadCount((int) $user['id']) : 0;
 $path = current_path();
 
 /** "active" class for the current section */
@@ -22,6 +23,14 @@ $active = fn (string $prefix) => ($prefix === '/' ? $path === '/' : str_starts_w
                 <li class="nav-item"><a class="nav-link<?= ($path === '/items' || preg_match('#^/items/\d+$#', $path)) ? ' active' : '' ?>" href="/items">Browse items</a></li>
                 <?php if ($user): ?>
                     <li class="nav-item"><a class="nav-link<?= $active('/dashboard') ?>" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center gap-2<?= $active('/messages') ?>" href="/messages">
+                            Messages
+                            <?php if ($unreadMessages > 0): ?>
+                                <span class="nav-badge" aria-label="<?= $unreadMessages ?> unread messages"><?= $unreadMessages > 99 ? '99+' : $unreadMessages ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
                     <?php if ($user['role'] === 'admin'): ?>
                         <li class="nav-item"><a class="nav-link<?= $active('/admin') ?>" href="/admin">Admin</a></li>
                     <?php endif; ?>
@@ -51,6 +60,7 @@ $active = fn (string $prefix) => ($prefix === '/' ? $path === '/' : str_starts_w
                             <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-grid me-2"></i>Dashboard</a></li>
                             <li><a class="dropdown-item" href="/my-items"><i class="bi bi-collection me-2"></i>My items</a></li>
                             <li><a class="dropdown-item" href="/my-claims"><i class="bi bi-patch-check me-2"></i>My claims</a></li>
+                            <li><a class="dropdown-item" href="/messages"><i class="bi bi-chat-dots me-2"></i>Messages</a></li>
                             <?php if ($user['role'] === 'admin'): ?>
                                 <li><a class="dropdown-item" href="/admin"><i class="bi bi-shield-lock me-2"></i>Admin panel</a></li>
                             <?php endif; ?>

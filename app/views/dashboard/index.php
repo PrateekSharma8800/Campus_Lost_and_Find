@@ -18,6 +18,13 @@
     </div>
 <?php endif; ?>
 
+<?php if ($unreadMessages > 0): ?>
+    <div class="alert alert-info d-flex align-items-center gap-2">
+        <i class="bi bi-chat-dots"></i>
+        <div>You have <strong><?= $unreadMessages ?></strong> unread message<?= $unreadMessages > 1 ? 's' : '' ?>. <a href="/messages" class="alert-link">Open messages</a></div>
+    </div>
+<?php endif; ?>
+
 <div class="row g-3 mb-4">
     <?php foreach ([
         ['exclamation-circle', 'rose',  'Lost items posted',  $stats['lost'],  '/my-items'],
