@@ -1,6 +1,8 @@
 <?php
 $user = Auth::user();
 $unreadMessages = $user ? Message::unreadCount((int) $user['id']) : 0;
+$unreadNotifications = $user ? Notification::unreadCount((int) $user['id']) : 0;
+$latestNotifications = $user ? Notification::forUser((int) $user['id'], false, 5) : [];
 $path = current_path();
 
 /** "active" class for the current section */
@@ -39,6 +41,7 @@ $active = fn (string $prefix) => ($prefix === '/' ? $path === '/' : str_starts_w
 
             <?php if ($user): ?>
                 <div class="d-flex flex-column flex-lg-row gap-2 align-items-lg-center">
+                    <?php View::partial('notification-bell', ['notifications' => $latestNotifications, 'unread' => $unreadNotifications]) ?>
                     <div class="dropdown">
                         <button class="btn btn-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Post item
@@ -61,6 +64,7 @@ $active = fn (string $prefix) => ($prefix === '/' ? $path === '/' : str_starts_w
                             <li><a class="dropdown-item" href="/my-items"><i class="bi bi-collection me-2"></i>My items</a></li>
                             <li><a class="dropdown-item" href="/my-claims"><i class="bi bi-patch-check me-2"></i>My claims</a></li>
                             <li><a class="dropdown-item" href="/messages"><i class="bi bi-chat-dots me-2"></i>Messages</a></li>
+                            <li><a class="dropdown-item" href="/notifications"><i class="bi bi-bell me-2"></i>Notifications</a></li>
                             <?php if ($user['role'] === 'admin'): ?>
                                 <li><a class="dropdown-item" href="/admin"><i class="bi bi-shield-lock me-2"></i>Admin panel</a></li>
                             <?php endif; ?>

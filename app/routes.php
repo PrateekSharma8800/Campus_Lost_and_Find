@@ -44,6 +44,11 @@ $router->get('/messages',                 [MessageController::class, 'index'], [
 $router->get('/messages/{itemId}/{userId}',   [MessageController::class, 'show'],  ['auth']);
 $router->post('/messages/{itemId}/{userId}',  [MessageController::class, 'send'],  ['auth']);
 
+// Notifications
+$router->get('/notifications',            [NotificationController::class, 'index'],   ['auth']);
+$router->post('/notifications/read-all',  [NotificationController::class, 'readAll'], ['auth']);
+$router->post('/notifications/{id}/open', [NotificationController::class, 'open'],    ['auth']);
+
 // Signed-in areas
 $router->get('/dashboard', [DashboardController::class, 'index'], ['auth']);
 $router->get('/admin',     [AdminController::class, 'index'],     ['admin']);
