@@ -21,6 +21,24 @@ $router->post('/forgot-password', [AuthController::class, 'forgot'],       ['gue
 $router->get('/reset-password',   [AuthController::class, 'showReset'],    ['guest']);
 $router->post('/reset-password',  [AuthController::class, 'reset'],        ['guest']);
 
+// Items (browse and detail pages are public)
+$router->get('/items',                [ItemController::class, 'index']);
+$router->get('/items/new',            [ItemController::class, 'create'],       ['auth']);  // before /items/{id}
+$router->post('/items',               [ItemController::class, 'store'],        ['auth']);
+$router->get('/items/{id}',           [ItemController::class, 'show']);
+$router->get('/items/{id}/edit',      [ItemController::class, 'edit'],         ['auth']);
+$router->post('/items/{id}/edit',     [ItemController::class, 'update'],       ['auth']);
+$router->post('/items/{id}/status',   [ItemController::class, 'updateStatus'], ['auth']);
+$router->post('/items/{id}/delete',   [ItemController::class, 'destroy'],      ['auth']);
+$router->get('/my-items',             [ItemController::class, 'myItems'],      ['auth']);
+$router->get('/uploads/{file}',       [ItemController::class, 'photo']);
+
+// Claims
+$router->post('/items/{id}/claim',    [ClaimController::class, 'store'],   ['auth']);
+$router->post('/claims/{id}/approve', [ClaimController::class, 'approve'], ['auth']);
+$router->post('/claims/{id}/reject',  [ClaimController::class, 'reject'],  ['auth']);
+$router->get('/my-claims',            [ClaimController::class, 'mine'],    ['auth']);
+
 // Signed-in areas
 $router->get('/dashboard', [DashboardController::class, 'index'], ['auth']);
 $router->get('/admin',     [AdminController::class, 'index'],     ['admin']);
