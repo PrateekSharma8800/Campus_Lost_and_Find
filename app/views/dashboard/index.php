@@ -1,32 +1,64 @@
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
     <div>
-        <h1 class="h3 mb-1">Hello, <?= e($user['name']) ?></h1>
-        <p class="text-muted mb-0">
-            <?= e($user['email']) ?>
-            <span class="badge text-bg-<?= $user['role'] === 'admin' ? 'danger' : 'secondary' ?> ms-1"><?= e(ucfirst($user['role'])) ?></span>
+        <h1>Hello, <?= e($user['name']) ?> 👋</h1>
+        <p><?= e($user['email']) ?>
+            <span class="pill <?= $user['role'] === 'admin' ? 'pill-lost' : 'pill-status-closed' ?> ms-1"><?= e(ucfirst($user['role'])) ?></span>
         </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/items/new?type=lost" class="btn btn-light"><i class="bi bi-exclamation-circle text-danger me-1"></i>I lost something</a>
+        <a href="/items/new?type=found" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>I found something</a>
     </div>
 </div>
 
-<div class="row g-3">
+<?php if ($pendingReviews > 0): ?>
+    <div class="alert alert-warning d-flex align-items-center gap-2">
+        <i class="bi bi-bell"></i>
+        <div>You have <strong><?= $pendingReviews ?></strong> claim<?= $pendingReviews > 1 ? 's' : '' ?> waiting for your review. <a href="/my-items" class="alert-link">Review now</a></div>
+    </div>
+<?php endif; ?>
+
+<div class="row g-3 mb-4">
     <?php foreach ([
-        ['exclamation-circle', 'My lost items', 'text-danger'],
-        ['box-seam', 'My found items', 'text-success'],
-        ['patch-question', 'My claims', 'text-warning'],
-        ['chat-dots', 'Messages', 'text-primary'],
-    ] as [$icon, $label, $color]): ?>
+        ['exclamation-circle', 'rose',  'Lost items posted',  $stats['lost'],  '/my-items'],
+        ['box-seam',           'green', 'Found items posted', $stats['found'], '/my-items'],
+        ['patch-check',        'amber', 'Claims made',        $claimsMade,     '/my-claims'],
+        ['emoji-smile',        'indigo','Items returned',     $stats['returned'], '/my-items'],
+    ] as [$icon, $color, $label, $value, $link]): ?>
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <i class="bi bi-<?= $icon ?> fs-3 <?= $color ?>" aria-hidden="true"></i>
-                    <div class="fs-3 fw-bold mt-2">0</div>
-                    <div class="text-muted small"><?= e($label) ?></div>
-                </div>
-            </div>
+            <a href="<?= $link ?>" class="cf-card stat-card">
+                <span class="icon-bubble <?= $color ?>"><i class="bi bi-<?= $icon ?>"></i></span>
+                <div class="stat-value"><?= (int) $value ?></div>
+                <div class="stat-label"><?= e($label) ?></div>
+            </a>
         </div>
     <?php endforeach; ?>
 </div>
 
-<div class="alert alert-light border mt-4 mb-0">
-    <i class="bi bi-tools me-1"></i> Posting and browsing items arrives in the next module.
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="section-title">Your recent posts</h2>
+    <?php if ($recentItems): ?><a href="/my-items" class="small fw-semibold">View all <i class="bi bi-arrow-right"></i></a><?php endif; ?>
 </div>
+
+<?php if (!$recentItems): ?>
+    <?php View::partial('empty-state', [
+        'icon' => 'inbox', 'title' => 'Nothing posted yet',
+        'text' => 'Your lost and found posts will appear here.',
+        'actionUrl' => '/items/new', 'actionLabel' => 'Post an item',
+    ]) ?>
+<?php else: ?>
+    <div class="cf-card">
+        <?php foreach ($recentItems as $item): ?>
+            <a href="/items/<?= (int) $item['id'] ?>" class="list-row text-reset">
+                <div class="list-thumb">
+                    <?php if ($item['photo']): ?><img src="<?= e(photo_url($item['photo'])) ?>" alt=""><?php else: ?><i class="bi <?= e($item['category_icon'] ?: 'bi-box') ?>"></i><?php endif; ?>
+                </div>
+                <div class="list-main">
+                    <span class="list-title"><?= e($item['title']) ?></span>
+                    <span class="small text-muted"><?= e($item['location_name']) ?> · <?= e(time_ago($item['created_at'])) ?></span>
+                </div>
+                <div class="d-flex gap-2 flex-wrap justify-content-end"><?= type_badge($item['type']) ?> <?= status_badge($item['status']) ?></div>
+            </a>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
