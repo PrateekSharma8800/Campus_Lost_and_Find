@@ -115,6 +115,29 @@
         });
     }
 
+    // Confirmation dialog: <form data-confirm="Deactivate this user?"> asks before submitting.
+    var confirmModalElement = document.getElementById('confirmModal');
+    if (confirmModalElement && window.bootstrap) {
+        var confirmModal = new bootstrap.Modal(confirmModalElement);
+        var formToSubmit = null;
+        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (form.dataset.confirmed === 'yes') return;   // already confirmed: let it submit
+                event.preventDefault();
+                formToSubmit = form;
+                confirmModalElement.querySelector('[data-confirm-text]').textContent = form.getAttribute('data-confirm');
+                confirmModal.show();
+            });
+        });
+        confirmModalElement.querySelector('[data-confirm-ok]').addEventListener('click', function () {
+            if (!formToSubmit) return;
+            formToSubmit.dataset.confirmed = 'yes';
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>';
+            formToSubmit.requestSubmit();
+        });
+    }
+
     // Item gallery: clicking a thumbnail shows that photo large.
     var mainPhoto = document.querySelector('[data-gallery-main]');
     document.querySelectorAll('[data-gallery-thumb]').forEach(function (thumb) {

@@ -23,6 +23,7 @@
     </div>
 </main>
 
+<?php if (Auth::isAdmin() && str_starts_with(current_path(), '/admin')) View::partial('confirm-modal') ?>
 <?php View::partial('footer') ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

@@ -390,3 +390,41 @@ a.stat-card:hover { border-color: #c7d2fe !important; box-shadow: var(--cf-shado
 .reason-list input:checked + label { border-color: #e11d48; background: #fff1f2; }
 .reason-list input:checked + label::before { border: 5px solid #e11d48; }
 .reason-list input:focus-visible + label { box-shadow: 0 0 0 .25rem rgba(225, 29, 72, .15); }
+
+/* ---------- 18. Admin ---------- */
+.admin-tabs { flex-wrap: wrap; } .admin-tabs a { display: inline-flex; align-items: center; }
+.chart-legend { display: flex; gap: 1rem; font-size: .8rem; color: var(--cf-muted); }
+.chart-legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+/* Chart colours validated for colour-blind readers: amber = lost, indigo = found */
+.legend-swatch.lost, .bar.lost { background: #d97706; } .legend-swatch.found, .bar.found { background: #4f46e5; }
+.bar-chart { display: flex; align-items: flex-end; gap: .35rem; height: 200px; border-bottom: 1px solid var(--cf-border); padding-top: .5rem; }
+.bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+.bar-group:hover { background: #f8fafc; border-radius: .4rem .4rem 0 0; }
+.bars { display: flex; align-items: flex-end; gap: 2px; height: calc(100% - 1.4rem); width: 100%; justify-content: center; }
+.bar { width: min(10px, 40%); border-radius: 4px 4px 0 0; min-height: 2px; }
+.bar-label { font-size: .68rem; color: var(--cf-muted); margin-top: .3rem; }
+.hbar-row + .hbar-row { margin-top: .8rem; }
+.hbar-track { height: 8px; background: #eef0f6; border-radius: 999px; overflow: hidden; }
+.hbar-fill { display: block; height: 100%; background: #4f46e5; border-radius: 999px; }
+.h-pct-0 { height: 0%; }
+.h-pct-5 { height: 5%; }
+.h-pct-10 { height: 10%; }
+.h-pct-15 { height: 15%; }
+.h-pct-20 { height: 20%; }
+.h-pct-25 { height: 25%; }
+.h-pct-30 { height: 30%; }
+.h-pct-35 { height: 35%; }
+.h-pct-40 { height: 40%; }
+.h-pct-45 { height: 45%; }
+.h-pct-50 { height: 50%; }
+.h-pct-55 { height: 55%; }
+.h-pct-60 { height: 60%; }
+.h-pct-65 { height: 65%; }
+.h-pct-70 { height: 70%; }
+.h-pct-75 { height: 75%; }
+.h-pct-80 { height: 80%; }
+.h-pct-85 { height: 85%; }
+.h-pct-90 { height: 90%; }
+.h-pct-95 { height: 95%; }
+.h-pct-100 { height: 100%; }
