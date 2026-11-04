@@ -67,14 +67,30 @@ function feedback(array $errors, string $field): string
         : '';
 }
 
-/** Client IP. REMOTE_ADDR only: X-Forwarded-For is attacker-controlled. */
+/**
+ * Client IP. By default only REMOTE_ADDR is used, because X-Forwarded-For can be
+ * faked by anyone. Behind a hosting proxy (Railway etc.) set TRUST_PROXY=1: then
+ * the LAST X-Forwarded-For entry is used - it is the one the host's proxy added.
+ */
 function client_ip(): string
 {
-    return substr((string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'), 0, 45);
+    $ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+    if (env('TRUST_PROXY') === '1' && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $parts = array_map('trim', explode(',', (string) $_SERVER['HTTP_X_FORWARDED_FOR']));
+        $last = end($parts);
+        if (filter_var($last, FILTER_VALIDATE_IP)) {
+            $ip = $last;
+        }
+    }
+    return substr($ip, 0, 45);
 }
 
 function is_https(): bool
 {
+    // Behind a hosting proxy, HTTPS ends at the proxy, which tells us via X-Forwarded-Proto.
+    if (env('TRUST_PROXY') === '1' && strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https') {
+        return true;
+    }
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
 }
