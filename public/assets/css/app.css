@@ -346,3 +346,33 @@ a.stat-card:hover { border-color: #c7d2fe !important; box-shadow: var(--cf-shado
 .notification.unread .notification-text { font-weight: 600; }
 .notification-time { font-size: .75rem; color: var(--cf-muted); }
 .unread-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--cf-primary); flex-shrink: 0; }
+
+/* ---------- 16. Possible matches ---------- */
+.match-card { display: block; padding: 1rem; height: 100%; color: inherit; transition: transform .15s, box-shadow .15s, border-color .15s; }
+.match-card:hover { transform: translateY(-2px); box-shadow: var(--cf-shadow-lg); border-color: #c7d2fe !important; text-decoration: none; }
+.match-card .progress { height: 6px; background: #eef0f6; }
+.match-high { color: #047857; } .match-medium { color: var(--cf-primary); } .match-low { color: #b45309; }
+.match-bar-high { background: #10b981; } .match-bar-medium { background: var(--cf-primary); } .match-bar-low { background: #f59e0b; }
+.match-reason { display: inline-flex; gap: .25rem; align-items: center; font-size: .72rem; font-weight: 500; color: #475569; background: #f1f5f9; border-radius: 999px; padding: .15rem .55rem; }
+/* Score bar widths in steps of 5% (avoids inline styles) */
+.w-score-0 { width: 0%; }
+.w-score-5 { width: 5%; }
+.w-score-10 { width: 10%; }
+.w-score-15 { width: 15%; }
+.w-score-20 { width: 20%; }
+.w-score-25 { width: 25%; }
+.w-score-30 { width: 30%; }
+.w-score-35 { width: 35%; }
+.w-score-40 { width: 40%; }
+.w-score-45 { width: 45%; }
+.w-score-50 { width: 50%; }
+.w-score-55 { width: 55%; }
+.w-score-60 { width: 60%; }
+.w-score-65 { width: 65%; }
+.w-score-70 { width: 70%; }
+.w-score-75 { width: 75%; }
+.w-score-80 { width: 80%; }
+.w-score-85 { width: 85%; }
+.w-score-90 { width: 90%; }
+.w-score-95 { width: 95%; }
+.w-score-100 { width: 100%; }

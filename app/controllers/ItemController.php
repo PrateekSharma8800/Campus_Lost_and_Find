@@ -67,6 +67,7 @@ final class ItemController extends Controller
                           && $item['type'] === 'found' && $item['status'] === 'open',
             'errors'   => [],
             'old'      => [],
+            'matches'  => ItemMatcher::findFor($item),
         ]);
     }
 

@@ -39,7 +39,7 @@ final class ClaimController extends Controller
             $this->view('items/show', [
                 'title' => $item['title'], 'item' => $item, 'images' => ItemImage::forItem($itemId),
                 'isOwner' => false, 'claims' => [], 'myClaim' => null, 'canClaim' => true,
-                'errors' => $validator->errors(), 'old' => $data,
+                'errors' => $validator->errors(), 'old' => $data, 'matches' => [],
             ], 422);
             return;
         }

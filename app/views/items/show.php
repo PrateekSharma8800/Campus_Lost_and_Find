@@ -99,6 +99,25 @@ $itemId = (int) $item['id'];
     </div>
 </div>
 
+<?php if (!empty($matches)): ?>
+    <!-- Possible matches (rule-based, see ItemMatcher) -->
+    <section class="mt-5">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-1 mb-3">
+            <div>
+                <h2 class="h5 mb-1"><i class="bi bi-stars text-primary me-1"></i>Possible matches</h2>
+                <p class="text-muted small mb-0">
+                    <?= $item['type'] === 'lost' ? 'Found items' : 'Lost reports' ?> that look similar, scored by category, location, words and date.
+                </p>
+            </div>
+        </div>
+        <div class="row g-3">
+            <?php foreach ($matches as $match): ?>
+                <div class="col-12 col-md-6 col-xl-3"><?php View::partial('match-card', ['match' => $match]) ?></div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>
+
 <?php if ($canClaim): ?>
     <!-- Claim form -->
     <div class="row mt-4" id="claim">
