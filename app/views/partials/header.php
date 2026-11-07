@@ -8,19 +8,18 @@ $path = current_path();
 /** "active" class for the current section */
 $active = fn (string $prefix) => ($prefix === '/' ? $path === '/' : str_starts_with($path, $prefix)) ? ' active' : '';
 ?>
-<nav class="navbar navbar-expand-lg app-navbar sticky-top py-2">
-    <div class="container">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
-            <span class="brand-mark"><i class="bi bi-search-heart" aria-hidden="true"></i></span>
-            <span>Campus<span class="text-primary">Find</span></span>
+<nav class="navbar navbar-expand-lg app-navbar sticky-top">
+    <div class="container nav-shell">
+        <a class="navbar-brand brand-word" href="/" aria-label="CampusFind home">
+            <span class="brand-logo" aria-hidden="true"><i class="bi bi-search-heart"></i></span>CampusFind
         </a>
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+        <button class="navbar-toggler border-0 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                 aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+            <i class="bi bi-list fs-4" aria-hidden="true"></i>
         </button>
 
         <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-lg-1">
+            <ul class="navbar-nav mx-lg-auto mb-2 mb-lg-0 gap-lg-1">
                 <li class="nav-item"><a class="nav-link<?= $active('/') ?>" href="/">Home</a></li>
                 <li class="nav-item"><a class="nav-link<?= ($path === '/items' || preg_match('#^/items/\d+$#', $path)) ? ' active' : '' ?>" href="/items">Browse items</a></li>
                 <?php if ($user): ?>
@@ -80,8 +79,8 @@ $active = fn (string $prefix) => ($prefix === '/' ? $path === '/' : str_starts_w
                     </div>
                 </div>
             <?php else: ?>
-                <div class="d-flex gap-2">
-                    <a href="/login" class="btn btn-light">Log in</a>
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="/login" class="nav-login">Log in</a>
                     <a href="/register" class="btn btn-primary">Sign up</a>
                 </div>
             <?php endif; ?>

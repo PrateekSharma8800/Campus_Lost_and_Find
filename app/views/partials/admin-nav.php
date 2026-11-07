@@ -9,7 +9,7 @@ $tabs = [
 ];
 ?>
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-3 admin-head">
         <span class="icon-bubble indigo"><i class="bi bi-shield-lock"></i></span>
         <div>
             <h1 class="h3 mb-0">Admin panel</h1>

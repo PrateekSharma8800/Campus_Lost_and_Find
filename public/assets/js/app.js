@@ -148,3 +148,146 @@
         });
     });
 })();
+
+// ---------------------------------------------------------------------
+// Motion: navbar on scroll, scroll reveal, scroll-lit text, hero tilt,
+// button ripples, stat count-up. Everything is skipped for visitors who
+// ask the system for reduced motion, and content is visible without JS.
+// (CSSOM style changes are allowed by the CSP; inline <style>/style="" are not.)
+// ---------------------------------------------------------------------
+(function () {
+    'use strict';
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var navbar = document.querySelector('.app-navbar');
+    var tiltEl = document.querySelector('[data-tilt]');
+    var lightBlocks = [];
+
+    // Click ripple on every button (pure decoration).
+    document.addEventListener('pointerdown', function (event) {
+        if (reduceMotion) return;
+        var btn = event.target.closest('.btn');
+        if (!btn || btn.disabled || btn.classList.contains('btn-link')) return;
+        var rect = btn.getBoundingClientRect();
+        var dot = document.createElement('span');
+        dot.className = 'btn-ripple';
+        dot.style.left = (event.clientX - rect.left) + 'px';
+        dot.style.top = (event.clientY - rect.top) + 'px';
+        btn.appendChild(dot);
+        dot.addEventListener('animationend', function () { dot.remove(); });
+    });
+
+    // Step cards: glow follows the pointer.
+    document.querySelectorAll('[data-glow]').forEach(function (card) {
+        card.addEventListener('pointermove', function (event) {
+            var rect = card.getBoundingClientRect();
+            card.style.setProperty('--mx', (event.clientX - rect.left) + 'px');
+            card.style.setProperty('--my', (event.clientY - rect.top) + 'px');
+        });
+    });
+
+    // Split scroll-lit paragraphs into word spans (text nodes only, so nested
+    // spans like .accent keep their styling).
+    document.querySelectorAll('[data-scroll-light]').forEach(function (block) {
+        var walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+        var textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+        textNodes.forEach(function (node) {
+            var fragment = document.createDocumentFragment();
+            node.textContent.split(/(\s+)/).forEach(function (part) {
+                if (part === '') return;
+                if (/^\s+$/.test(part)) { fragment.appendChild(document.createTextNode(' ')); return; }
+                var word = document.createElement('span');
+                word.className = 'sl-word';
+                word.textContent = part;
+                fragment.appendChild(word);
+            });
+            node.parentNode.replaceChild(fragment, node);
+        });
+        lightBlocks.push({ el: block, words: block.querySelectorAll('.sl-word') });
+    });
+
+    // Count numbers up from 0 when they appear (admin + dashboard stat cards).
+    function countUp(el) {
+        var target = parseInt(el.textContent.replace(/[^\d]/g, ''), 10);
+        if (!target || el.dataset.counted) return;
+        el.dataset.counted = '1';
+        var start = null;
+        var step = function (time) {
+            if (start === null) start = time;
+            var t = Math.min(1, (time - start) / 1100);
+            el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3))).toLocaleString();
+            if (t < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }
+
+    // Scroll reveal: blocks below the fold fade up when they enter the viewport.
+    if (!reduceMotion && 'IntersectionObserver' in window) {
+        var selector = 'main .page-header, main .cf-card, main .card, main section > h2, main .eyebrow, ' +
+            'main .scroll-light-section, main .hero-marquee, main .empty-state, main .admin-head';
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                var target = entry.target;
+                target.classList.add('is-visible');
+                target.querySelectorAll('.stat-value').forEach(countUp);
+                observer.unobserve(target);
+                // Hand transforms back to the element's own hover effects once revealed.
+                setTimeout(function () { target.classList.remove('reveal'); }, 1300);
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+
+        var seen = [];
+        document.querySelectorAll(selector).forEach(function (el) {
+            if (el.closest('.landing-hero .hero-stage') || el.closest('.modal')) return;
+            if (seen.some(function (parent) { return parent.contains(el); })) return;  // only outermost blocks
+            seen.push(el);
+            var rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.92) {
+                // Already on screen: no hiding (avoids a flash), but still animate charts and numbers.
+                el.classList.add('is-visible');
+                el.querySelectorAll('.stat-value').forEach(countUp);
+                return;
+            }
+            el.classList.add('reveal');
+            // Stagger siblings in the same row (cards in a grid).
+            var col = el.parentElement;
+            if (col && col.parentElement && col.parentElement.classList.contains('row')) {
+                var index = Array.prototype.indexOf.call(col.parentElement.children, col);
+                el.style.setProperty('--reveal-delay', Math.min(index % 4, 3) * 0.08 + 's');
+            }
+            observer.observe(el);
+        });
+    } else {
+        document.querySelectorAll('.stat-value').forEach(function (el) { el.dataset.counted = '1'; });
+    }
+
+    // One rAF-throttled scroll handler for navbar, tilt and lit text.
+    var ticking = false;
+    function onScroll() {
+        var y = window.scrollY;
+        var vh = window.innerHeight;
+        if (navbar) navbar.classList.toggle('scrolled', y > 12);
+
+        if (tiltEl && !reduceMotion) {
+            var tilt = Math.max(0, 1 - y / (vh * 0.55));
+            tiltEl.style.setProperty('--tilt', tilt.toFixed(3));
+        }
+
+        lightBlocks.forEach(function (block) {
+            var rect = block.el.getBoundingClientRect();
+            // 0 when the paragraph's top reaches 85% of the screen, 1 when its bottom reaches 45%.
+            var progress = (vh * 0.85 - rect.top) / (rect.height + vh * 0.4);
+            progress = reduceMotion ? 1 : Math.max(0, Math.min(1, progress));
+            var lit = Math.round(progress * block.words.length);
+            block.words.forEach(function (word, i) { word.classList.toggle('lit', i < lit); });
+        });
+        ticking = false;
+    }
+    window.addEventListener('scroll', function () {
+        if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+    }, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+})();
